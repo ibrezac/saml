@@ -65,7 +65,7 @@ func randomBytes(n int) []byte {
 // m.ServiceProvider.AcsURL.
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == m.ServiceProvider.MetadataURL.Path {
-		buf, _ := xml.MarshalIndent(m.ServiceProvider.Metadata(), "", "  ")
+		buf, _ := xml.MarshalIndent(m.ServiceProvider.SPMetadata, "", "  ")
 		w.Header().Set("Content-Type", "application/samlmetadata+xml")
 		w.Write(buf)
 		return
@@ -223,7 +223,7 @@ func (m *Middleware) Authorize(w http.ResponseWriter, r *http.Request, assertion
 
 	now := saml.TimeNow()
 	claims := AuthorizationToken{}
-	claims.Audience = m.ServiceProvider.Metadata().EntityID
+	claims.Audience = m.ServiceProvider.SPMetadata.EntityID
 	claims.IssuedAt = now.Unix()
 	claims.ExpiresAt = now.Add(m.TokenMaxAge).Unix()
 	claims.NotBefore = now.Unix()
@@ -285,7 +285,7 @@ func (m *Middleware) GetAuthorizationToken(r *http.Request) *AuthorizationToken 
 		m.ServiceProvider.Logger.Printf("ERROR: invalid token claims: %s", err)
 		return nil
 	}
-	if tokenClaims.Audience != m.ServiceProvider.Metadata().EntityID {
+	if tokenClaims.Audience != m.ServiceProvider.SPMetadata.EntityID {
 		m.ServiceProvider.Logger.Printf("ERROR: invalid audience: %s", err)
 		return nil
 	}

@@ -62,6 +62,7 @@ func New(opts Options) (*Middleware, error) {
 		AllowIDPInitiated: opts.AllowIDPInitiated,
 		TokenMaxAge:       tokenMaxAge,
 	}
+	m.ServiceProvider.SPMetadata = m.ServiceProvider.Metadata()
 
 	cookieStore := ClientCookies{
 		ServiceProvider: &m.ServiceProvider,
